@@ -22,9 +22,28 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getTopics().observe(this, new Observer<ArrayList<Topic>>() {
             @Override
             public void onChanged(@Nullable ArrayList<Topic> topics) {
-                Log.d(getPackageName(), "topics updated");
+                onTopicsChanged(topics);
             }
         });
+        viewModel.getTweets().observe(this, new Observer<ArrayList<Tweet>>() {
+            @Override
+            public void onChanged(@Nullable ArrayList<Tweet> tweets) {
+                onTweetsChanged(tweets);
+            }
+        });
+    }
 
+    private void onTopicsChanged(ArrayList<Topic> topics) {
+        Log.d("main activity", "updated topics");
+        Topic t = topics.get(0);
+        Log.d("its a topic", t.getName());
+        viewModel.setCurrentTopic(t);
+    }
+
+    private void onTweetsChanged(ArrayList<Tweet> tweets) {
+        Log.d("main activity", "updated tweets");
+        for (Tweet t: tweets) {
+            Log.d("its a tweet", t.getContent());
+        }
     }
 }

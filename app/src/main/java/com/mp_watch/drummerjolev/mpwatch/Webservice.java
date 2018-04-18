@@ -4,8 +4,12 @@ import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 public interface Webservice {
     @GET("/topics")
     Call<ArrayList<Topic>> getTopics();
+
+    @GET("/tweets")
+    Call<ArrayList<Tweet>> getTweets(@Query("topic") String topicName);
 }
