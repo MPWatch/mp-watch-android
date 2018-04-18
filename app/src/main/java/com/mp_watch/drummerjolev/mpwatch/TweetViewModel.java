@@ -36,7 +36,6 @@ public class TweetViewModel extends ViewModel {
     }
 
     public LiveData<ArrayList<Tweet>> getTweets() {
-        Log.d("view model", "getting tweets");
         return tweets;
     }
 }

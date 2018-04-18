@@ -19,8 +19,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Singleton
 public class TweetsRepository {
     private Webservice webservice;
+    private MutableLiveData<ArrayList<Topic>> topics;
+    private MutableLiveData<ArrayList<Tweet>> tweets;
 
     public TweetsRepository() {
+        // init LiveData objects
+        topics = new MutableLiveData<>();
+        tweets = new MutableLiveData<>();
         // add logger to API calls
         HttpLoggingInterceptor logger = new HttpLoggingInterceptor();
         logger.setLevel(HttpLoggingInterceptor.Level.BASIC);
@@ -36,11 +41,10 @@ public class TweetsRepository {
     }
 
     public LiveData<ArrayList<Topic>> getTopics() {
-        final MutableLiveData<ArrayList<Topic>> data = new MutableLiveData<>();
         webservice.getTopics().enqueue(new Callback<ArrayList<Topic>>() {
             @Override
             public void onResponse(Call<ArrayList<Topic>> call, Response<ArrayList<Topic>> response) {
-                data.postValue(response.body());
+                topics.setValue(response.body());
             }
 
             @Override
@@ -49,17 +53,16 @@ public class TweetsRepository {
                 Log.d("tweets repo", "topic fetch failed " + t.getLocalizedMessage());
             }
         });
-        return data;
+        return topics;
     }
 
     public LiveData<ArrayList<Tweet>> getTweets(Topic topic) {
-        final MutableLiveData<ArrayList<Tweet>> data = new MutableLiveData<>();
         // topic can be null (on initial call)
         if (topic != null) {
             webservice.getTweets(topic.getName()).enqueue(new Callback<ArrayList<Tweet>>() {
                 @Override
                 public void onResponse(Call<ArrayList<Tweet>> call, Response<ArrayList<Tweet>> response) {
-                    data.postValue(response.body());
+                    tweets.setValue(response.body());
                 }
 
                 @Override
@@ -69,7 +72,6 @@ public class TweetsRepository {
                 }
             });
         }
-        Log.d("tweets", "data received");
-        return data;
+        return tweets;
     }
 }
