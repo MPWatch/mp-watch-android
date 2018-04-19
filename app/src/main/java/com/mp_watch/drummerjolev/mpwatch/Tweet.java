@@ -1,14 +1,22 @@
 package com.mp_watch.drummerjolev.mpwatch;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverter;
+import android.arch.persistence.room.TypeConverters;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 
-@Entity
+import static android.arch.persistence.room.ForeignKey.CASCADE;
+
+@Entity(foreignKeys = @ForeignKey(entity = Topic.class,
+        parentColumns = "name",
+        childColumns = "entity",
+        onDelete = CASCADE))
 public class Tweet {
     @PrimaryKey
     @SerializedName("tweet_id")
@@ -21,6 +29,7 @@ public class Tweet {
     @Expose
     private String content;
     @SerializedName("created")
+    @TypeConverters(DateConverter.class)
     @Expose
     private Date created;
     @SerializedName("entity")

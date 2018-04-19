@@ -44,8 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void onTweetsChanged(List<Tweet> tweets) {
         Log.d("main activity", "updated tweets");
+        Log.d("tweets info", "" + tweets.size());
         for (Tweet t: tweets) {
-            Log.d("its a tweet", t.getTwitterHandle());
+            Log.d("its a tweet", t.getContent());
         }
     }
 }

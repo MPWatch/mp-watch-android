@@ -28,6 +28,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class TweetsRepository {
     private final Webservice webservice;
     private final TopicDao topicDao;
+    private final TweetDao tweetDao;
     private final Executor executor;
     private MutableLiveData<List<Topic>> topics;
     private MutableLiveData<List<Tweet>> tweets;
@@ -59,6 +60,7 @@ public class TweetsRepository {
 
         // DAOs
         this.topicDao = MPWatchDatabase.getInstance(MPWatchApplication.getContext()).topicDao();
+        this.tweetDao = MPWatchDatabase.getInstance(MPWatchApplication.getContext()).tweetDao();
 
         // Executor
         this.executor = Executors.newSingleThreadExecutor();
