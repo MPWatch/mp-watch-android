@@ -2,6 +2,7 @@ package com.mp_watch.drummerjolev.mpwatch;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -9,6 +10,7 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class Topic {
     @PrimaryKey
+    @NonNull
     @SerializedName("topic")
     @Expose
     private String name;

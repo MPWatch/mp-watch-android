@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private TweetViewModel viewModel;
@@ -19,31 +19,33 @@ public class MainActivity extends AppCompatActivity {
         viewModel.init();
 
         // Observers
-        viewModel.getTopics().observe(this, new Observer<ArrayList<Topic>>() {
+        viewModel.getTopics().observe(this, new Observer<List<Topic>>() {
             @Override
-            public void onChanged(@Nullable ArrayList<Topic> topics) {
+            public void onChanged(@Nullable List<Topic> topics) {
                 onTopicsChanged(topics);
             }
         });
-        viewModel.getTweets().observe(this, new Observer<ArrayList<Tweet>>() {
+        viewModel.getTweets().observe(this, new Observer<List<Tweet>>() {
             @Override
-            public void onChanged(@Nullable ArrayList<Tweet> tweets) {
+            public void onChanged(@Nullable List<Tweet> tweets) {
                 onTweetsChanged(tweets);
             }
         });
     }
 
-    private void onTopicsChanged(ArrayList<Topic> topics) {
+    private void onTopicsChanged(List<Topic> topics) {
         Log.d("main activity", "updated topics");
-        Topic t = topics.get(0);
-        Log.d("its a topic", t.getName());
-        viewModel.setCurrentTopic(t);
+        if (topics.size() > 0) {
+            Topic t = topics.get(0);
+            Log.d("its a topic", t.getName());
+            viewModel.setCurrentTopic(t);
+        }
     }
 
-    private void onTweetsChanged(ArrayList<Tweet> tweets) {
+    private void onTweetsChanged(List<Tweet> tweets) {
         Log.d("main activity", "updated tweets");
         for (Tweet t: tweets) {
-            Log.d("its a tweet", t.getContent());
+            Log.d("its a tweet", t.getTwitterHandle());
         }
     }
 }

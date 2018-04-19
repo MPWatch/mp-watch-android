@@ -2,9 +2,17 @@ package com.mp_watch.drummerjolev.mpwatch;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.persistence.room.Room;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.inject.Singleton;
 
@@ -18,45 +26,64 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 @Singleton
 public class TweetsRepository {
-    private Webservice webservice;
-    private MutableLiveData<ArrayList<Topic>> topics;
-    private MutableLiveData<ArrayList<Tweet>> tweets;
+    private final Webservice webservice;
+    private final TopicDao topicDao;
+    private final Executor executor;
+    private MutableLiveData<List<Topic>> topics;
+    private MutableLiveData<List<Tweet>> tweets;
 
     public TweetsRepository() {
         // init LiveData objects
         topics = new MutableLiveData<>();
         tweets = new MutableLiveData<>();
+
         // add logger to API calls
         HttpLoggingInterceptor logger = new HttpLoggingInterceptor();
         logger.setLevel(HttpLoggingInterceptor.Level.BASIC);
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(logger);
 
+        // Webservice
+        // custom gson object for date formatting
+        Gson gson = new GsonBuilder()
+                .serializeNulls()
+                .setDateFormat("EEE MMM dd HH:mm:ss Z yyyy")
+                .create();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://mp-watch.lifeissababa.com/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient.build())
                 .build();
         this.webservice = retrofit.create(Webservice.class);
+
+        // DAOs
+        this.topicDao = MPWatchDatabase.getInstance(MPWatchApplication.getContext()).topicDao();
+
+        // Executor
+        this.executor = Executors.newSingleThreadExecutor();
     }
 
-    public LiveData<ArrayList<Topic>> getTopics() {
-        webservice.getTopics().enqueue(new Callback<ArrayList<Topic>>() {
-            @Override
-            public void onResponse(Call<ArrayList<Topic>> call, Response<ArrayList<Topic>> response) {
-                topics.setValue(response.body());
-            }
+    public LiveData<List<Topic>> getTopics() {
+        fetchTopics();
+        return topicDao.loadAll();
+    }
 
+    private void fetchTopics() {
+        executor.execute(new Runnable() {
             @Override
-            public void onFailure(Call<ArrayList<Topic>> call, Throwable t) {
-                // TODO: throw error
-                Log.d("tweets repo", "topic fetch failed " + t.getLocalizedMessage());
+            public void run() {
+                try {
+                    Response<ArrayList<Topic>> response = webservice.getTopics().execute();
+                    topicDao.saveAll(response.body());
+                } catch (Exception e) {
+                    Log.d("topics repo", "topics fetch failed " + e.getLocalizedMessage());
+                }
             }
         });
-        return topics;
     }
 
-    public LiveData<ArrayList<Tweet>> getTweets(Topic topic) {
+    public LiveData<List<Tweet>> getTweets(Topic topic) {
         // topic can be null (on initial call)
         if (topic != null) {
             webservice.getTweets(topic.getName()).enqueue(new Callback<ArrayList<Tweet>>() {

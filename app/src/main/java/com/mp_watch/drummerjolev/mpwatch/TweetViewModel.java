@@ -5,15 +5,15 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
 public class TweetViewModel extends ViewModel {
     private TweetsRepository tweetsRepository;
-    private LiveData<ArrayList<Topic>> topics;
+    private LiveData<List<Topic>> topics;
     private Topic currentTopic;
-    private LiveData<ArrayList<Tweet>> tweets;
+    private LiveData<List<Tweet>> tweets;
 
     public TweetViewModel() {
         // TODO: change to @Inject with Dagger
@@ -26,7 +26,7 @@ public class TweetViewModel extends ViewModel {
         this.tweets = tweetsRepository.getTweets(currentTopic);
     }
 
-    public LiveData<ArrayList<Topic>> getTopics() {
+    public LiveData<List<Topic>> getTopics() {
         return topics;
     }
 
@@ -35,7 +35,11 @@ public class TweetViewModel extends ViewModel {
         this.tweets = tweetsRepository.getTweets(this.currentTopic);
     }
 
-    public LiveData<ArrayList<Tweet>> getTweets() {
+    public Topic getCurrentTopic() {
+        return currentTopic;
+    }
+
+    public LiveData<List<Tweet>> getTweets() {
         return tweets;
     }
 }
