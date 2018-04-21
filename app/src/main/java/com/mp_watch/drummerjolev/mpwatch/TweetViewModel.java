@@ -23,6 +23,7 @@ public class TweetViewModel extends ViewModel {
     public void init() {
         Log.d("view model", "launching view model");
         this.topics = tweetsRepository.getTopics();
+        this.currentTopic = new Topic();
         this.tweets = tweetsRepository.getTweets(currentTopic);
     }
 

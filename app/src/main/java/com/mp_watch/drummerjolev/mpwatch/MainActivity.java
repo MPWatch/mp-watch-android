@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("main activity", "updated topics");
         if (topics.size() > 0) {
             Topic t = topics.get(0);
-            Log.d("its a topic", t.getName());
+            Log.d("updating topic", "" + t.getName());
             viewModel.setCurrentTopic(t);
         }
     }
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private void onTweetsChanged(List<Tweet> tweets) {
         Log.d("main activity", "updated tweets");
         Log.d("tweets info", "" + tweets.size());
+        Log.d("tweets info more", "" + viewModel.getCurrentTopic().getName());
         for (Tweet t: tweets) {
             Log.d("its a tweet", t.getContent());
         }

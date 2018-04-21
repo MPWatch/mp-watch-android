@@ -2,24 +2,22 @@ package com.mp_watch.drummerjolev.mpwatch;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.persistence.room.Room;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -30,19 +28,17 @@ public class TweetsRepository {
     private final TopicDao topicDao;
     private final TweetDao tweetDao;
     private final Executor executor;
-    private MutableLiveData<List<Topic>> topics;
-    private MutableLiveData<List<Tweet>> tweets;
+    private final MutableLiveData<List<Tweet>> tweets;
 
     public TweetsRepository() {
-        // init LiveData objects
-        topics = new MutableLiveData<>();
+        // add init
         tweets = new MutableLiveData<>();
-
         // add logger to API calls
         HttpLoggingInterceptor logger = new HttpLoggingInterceptor();
         logger.setLevel(HttpLoggingInterceptor.Level.BASIC);
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(logger);
+        httpClient.readTimeout(60, TimeUnit.SECONDS);
 
         // Webservice
         // custom gson object for date formatting
@@ -77,6 +73,7 @@ public class TweetsRepository {
             public void run() {
                 try {
                     Response<ArrayList<Topic>> response = webservice.getTopics().execute();
+                    ArrayList<Topic> topics = response.body();
                     topicDao.saveAll(response.body());
                 } catch (Exception e) {
                     Log.d("topics repo", "topics fetch failed " + e.getLocalizedMessage());
@@ -87,20 +84,36 @@ public class TweetsRepository {
 
     public LiveData<List<Tweet>> getTweets(Topic topic) {
         // topic can be null (on initial call)
-        if (topic != null) {
-            webservice.getTweets(topic.getName()).enqueue(new Callback<ArrayList<Tweet>>() {
-                @Override
-                public void onResponse(Call<ArrayList<Tweet>> call, Response<ArrayList<Tweet>> response) {
-                    tweets.setValue(response.body());
-                }
-
-                @Override
-                public void onFailure(Call<ArrayList<Tweet>> call, Throwable t) {
-                    // TODO: throw error
-                    Log.d("tweets repo", "tweets fetch failed " + t.getMessage());
-                }
-            });
+        int c = tweetDao.count(topic.getName());
+        if (c == 0) {
+            fetchTweets(topic);
         }
+        // TODO: fix, this is an antipattern
+        LiveData<List<Tweet>> tweetsForTopic = tweetDao.load(topic.getName());
+        if (tweetsForTopic.getValue() != null) {
+            tweets.postValue(tweetsForTopic.getValue());
+        }
+        Log.d("tweets are coming from", "" + tweets.toString());
         return tweets;
+    }
+
+    private void fetchTweets(final Topic topic) {
+        if (topic.getName() == null || topic.getName().equals("")) {
+            return;
+        }
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.d("Executor is fetching", "nowww");
+                    Response<ArrayList<Tweet>> response = webservice.getTweets(topic.getName()).execute();
+                    tweetDao.saveAll(response.body());
+                    // TODO: fix, see note in getTweets above
+                    tweets.postValue(response.body());
+                } catch (Exception e) {
+                    Log.d("tweets repo", "tweets fetch failed " + e.getLocalizedMessage());
+                }
+            }
+        });
     }
 }

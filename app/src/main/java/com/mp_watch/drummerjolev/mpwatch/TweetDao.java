@@ -14,4 +14,8 @@ public interface TweetDao {
     void saveAll(List<Tweet> tweets);
     @Query("SELECT * FROM tweet WHERE entity = :topic")
     LiveData<List<Tweet>> load(String topic);
+    @Query("SELECT * FROM tweet")
+    LiveData<List<Tweet>> loadAll();
+    @Query("SELECT COUNT(*) FROM tweet WHERE entity = :topic")
+    int count(String topic);
 }
