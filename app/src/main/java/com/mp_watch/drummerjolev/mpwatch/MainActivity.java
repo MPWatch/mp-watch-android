@@ -9,15 +9,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements TopicAdapter.TopicClickListener {
     private TweetViewModel viewModel;
-    private RecyclerView recyclerView;
+
+    private RecyclerView topicRecyclerView;
     private TopicAdapter topicAdapter;
+    private RecyclerView tweetRecyclerView;
+    private TweetAdapter tweetAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,16 +53,19 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.Topi
 
     private void initViews() {
         // Topics
-        recyclerView = findViewById(R.id.rvTopics);
+        topicRecyclerView = findViewById(R.id.rvTopics);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        Log.d("init views", " " + recyclerView.toString());
-        recyclerView.setLayoutManager(horizontalLayoutManager);
+        topicRecyclerView.setLayoutManager(horizontalLayoutManager);
         topicAdapter = new TopicAdapter(this, Collections.<Topic>emptyList());
         topicAdapter.setTopicClickListener(this);
-        recyclerView.setAdapter(topicAdapter);
+        topicRecyclerView.setAdapter(topicAdapter);
 
-        // TODO: Tweets
-        // ...
+        // Tweets
+        tweetRecyclerView = findViewById(R.id.rvTweets);
+        LinearLayoutManager verticalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        tweetRecyclerView.setLayoutManager(verticalLayoutManager);
+        tweetAdapter = new TweetAdapter(this, Collections.<Tweet>emptyList());
+        tweetRecyclerView.setAdapter(tweetAdapter);
     }
 
     private void onTopicsChanged(List<Topic> topics) {
@@ -74,12 +79,7 @@ public class MainActivity extends AppCompatActivity implements TopicAdapter.Topi
     }
 
     private void onTweetsChanged(List<Tweet> tweets) {
-        Log.d("main activity", "updated tweets");
-        Log.d("tweets info", "" + tweets.size());
-        Log.d("tweets info more", "" + viewModel.getCurrentTopic().getValue().getName());
-        for (Tweet t: tweets) {
-            Log.d("its a tweet", t.getContent());
-        }
+        tweetAdapter.refreshAll(tweets);
     }
 
     @Override
