@@ -1,13 +1,11 @@
 package com.mp_watch.drummerjolev.mpwatch;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -70,7 +68,6 @@ public class TweetsRepository {
             public void run() {
                 try {
                     Response<ArrayList<Topic>> response = webservice.getTopics().execute();
-                    ArrayList<Topic> topics = response.body();
                     topicDao.saveAll(response.body());
                 } catch (Exception e) {
                     Log.d("topics repo", "topics fetch failed " + e.getLocalizedMessage());

@@ -25,6 +25,12 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
+    // Constraint Layout
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+
+    // Constraint Layout
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+
     // ViewModel and LiveData
     implementation "android.arch.lifecycle:extensions:1.1.1"
     // alternatively, just ViewModel
