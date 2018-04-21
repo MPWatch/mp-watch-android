@@ -1,7 +1,9 @@
 package com.mp_watch.drummerjolev.mpwatch;
 
+import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
@@ -12,7 +14,7 @@ import javax.inject.Inject;
 public class TweetViewModel extends ViewModel {
     private TweetsRepository tweetsRepository;
     private LiveData<List<Topic>> topics;
-    private Topic currentTopic;
+    private MutableLiveData<Topic> currentTopic;
     private LiveData<List<Tweet>> tweets;
 
     public TweetViewModel() {
@@ -23,8 +25,14 @@ public class TweetViewModel extends ViewModel {
     public void init() {
         Log.d("view model", "launching view model");
         this.topics = tweetsRepository.getTopics();
-        this.currentTopic = new Topic();
-        this.tweets = tweetsRepository.getTweets(currentTopic);
+        this.currentTopic = new MutableLiveData<>();
+        this.tweets = Transformations.switchMap(currentTopic, new Function<Topic, LiveData<List<Tweet>>>() {
+            @Override
+            public LiveData<List<Tweet>> apply(Topic input) {
+                Log.d("transformation", "applying transformation to: " + input.getName());
+                return tweetsRepository.getTweets(input);
+            }
+        });
     }
 
     public LiveData<List<Topic>> getTopics() {
@@ -32,11 +40,10 @@ public class TweetViewModel extends ViewModel {
     }
 
     public void setCurrentTopic(Topic currentTopic) {
-        this.currentTopic = currentTopic;
-        this.tweets = tweetsRepository.getTweets(this.currentTopic);
+        this.currentTopic.setValue(currentTopic);
     }
 
-    public Topic getCurrentTopic() {
+    public MutableLiveData<Topic> getCurrentTopic() {
         return currentTopic;
     }
 

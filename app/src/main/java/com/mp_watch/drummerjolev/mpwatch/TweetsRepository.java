@@ -28,11 +28,8 @@ public class TweetsRepository {
     private final TopicDao topicDao;
     private final TweetDao tweetDao;
     private final Executor executor;
-    private final MutableLiveData<List<Tweet>> tweets;
 
     public TweetsRepository() {
-        // add init
-        tweets = new MutableLiveData<>();
         // add logger to API calls
         HttpLoggingInterceptor logger = new HttpLoggingInterceptor();
         logger.setLevel(HttpLoggingInterceptor.Level.BASIC);
@@ -88,13 +85,7 @@ public class TweetsRepository {
         if (c == 0) {
             fetchTweets(topic);
         }
-        // TODO: fix, this is an antipattern
-        LiveData<List<Tweet>> tweetsForTopic = tweetDao.load(topic.getName());
-        if (tweetsForTopic.getValue() != null) {
-            tweets.postValue(tweetsForTopic.getValue());
-        }
-        Log.d("tweets are coming from", "" + tweets.toString());
-        return tweets;
+        return tweetDao.load(topic.getName());
     }
 
     private void fetchTweets(final Topic topic) {
@@ -108,8 +99,6 @@ public class TweetsRepository {
                     Log.d("Executor is fetching", "nowww");
                     Response<ArrayList<Tweet>> response = webservice.getTweets(topic.getName()).execute();
                     tweetDao.saveAll(response.body());
-                    // TODO: fix, see note in getTweets above
-                    tweets.postValue(response.body());
                 } catch (Exception e) {
                     Log.d("tweets repo", "tweets fetch failed " + e.getLocalizedMessage());
                 }
