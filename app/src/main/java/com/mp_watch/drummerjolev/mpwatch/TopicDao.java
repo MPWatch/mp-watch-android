@@ -13,7 +13,7 @@ import java.util.List;
 public interface TopicDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void saveAll(List<Topic> topic);
-    @Query("SELECT * FROM topic")
+    @Query("SELECT * FROM topic ORDER BY count DESC")
     LiveData<List<Topic>> loadAll();
     @Query("DELETE FROM topic")
     void deleteAll();

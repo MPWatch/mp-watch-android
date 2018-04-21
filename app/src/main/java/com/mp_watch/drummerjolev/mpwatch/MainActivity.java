@@ -8,12 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TopicAdapter.TopicClickListener {
     private TweetViewModel viewModel;
     private RecyclerView recyclerView;
     private TopicAdapter topicAdapter;
@@ -49,20 +50,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        // Topics
         recyclerView = findViewById(R.id.rvTopics);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         Log.d("init views", " " + recyclerView.toString());
         recyclerView.setLayoutManager(horizontalLayoutManager);
+        topicAdapter = new TopicAdapter(this, Collections.<Topic>emptyList());
+        topicAdapter.setTopicClickListener(this);
+        recyclerView.setAdapter(topicAdapter);
+
+        // TODO: Tweets
+        // ...
     }
 
     private void onTopicsChanged(List<Topic> topics) {
         Log.d("main activity", "updated topics");
         if (topics.size() > 0) {
-            topicAdapter = new TopicAdapter(this, topics);
-            recyclerView.setAdapter(topicAdapter);
+            topicAdapter.refreshAll(topics);
             Topic t = topics.get(0);
-            Log.d("updating topic", "" + t.getName());
             viewModel.setCurrentTopic(t);
+            Log.d("updating topic", "" + t.getName());
         }
     }
 
@@ -73,5 +80,10 @@ public class MainActivity extends AppCompatActivity {
         for (Tweet t: tweets) {
             Log.d("its a tweet", t.getContent());
         }
+    }
+
+    @Override
+    public void onTopicClick(View view, Topic topic, int position) {
+        viewModel.setCurrentTopic(topic);
     }
 }
