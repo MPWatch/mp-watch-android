@@ -5,6 +5,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import java.util.List;
@@ -15,6 +16,8 @@ public class TweetViewModel extends ViewModel {
     private TweetsRepository tweetsRepository;
     private LiveData<List<Topic>> topics;
     private MutableLiveData<Topic> currentTopic;
+    private MutableLiveData<String> currentMP;
+    private QueryLiveData query;
     private LiveData<List<Tweet>> tweets;
 
     public TweetViewModel() {
@@ -25,12 +28,18 @@ public class TweetViewModel extends ViewModel {
     public void init() {
         Log.d("view model", "launching view model");
         this.topics = tweetsRepository.getTopics();
+        // TODO: add call to get all MPs
         this.currentTopic = new MutableLiveData<>();
-        this.tweets = Transformations.switchMap(currentTopic, new Function<Topic, LiveData<List<Tweet>>>() {
+        this.currentMP = new MutableLiveData<>();
+        this.query = new QueryLiveData(currentTopic, currentMP);
+        this.tweets = Transformations.switchMap(query, new Function<Pair<Topic, String>, LiveData<List<Tweet>>>() {
             @Override
-            public LiveData<List<Tweet>> apply(Topic input) {
-                Log.d("transformation", "applying transformation to: " + input.getName());
-                return tweetsRepository.getTweets(input);
+            public LiveData<List<Tweet>> apply(Pair<Topic, String> input) {
+                Topic topic = input.first;
+                String mp = input.second;
+                Log.d("transformation", "applying transformation to topic: " + topic.getName());
+                Log.d("transformation", "applying transformation to mp: " + mp);
+                return tweetsRepository.getTweets(topic, mp);
             }
         });
     }
@@ -41,6 +50,11 @@ public class TweetViewModel extends ViewModel {
 
     public void setCurrentTopic(Topic currentTopic) {
         this.currentTopic.setValue(currentTopic);
+    }
+
+    public void setCurrentMP(String mp) {
+        // set to null when done
+        this.currentMP.setValue(mp);
     }
 
     public MutableLiveData<Topic> getCurrentTopic() {

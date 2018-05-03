@@ -3,8 +3,8 @@ package com.mp_watch.drummerjolev.mpwatch;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,9 +18,15 @@ import android.view.View;
 import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
-        implements TopicAdapter.TopicClickListener, SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener {
+public class MainActivity extends
+        AppCompatActivity implements
+        TopicAdapter.TopicClickListener,
+        SearchView.OnQueryTextListener,
+        MenuItem.OnActionExpandListener
+{
     private TweetViewModel viewModel;
+
+    private Handler searchHandler;
 
     private RecyclerView topicRecyclerView;
     private TopicAdapter topicAdapter;
@@ -34,12 +40,19 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.main_activity);
         initViews();
 
+        // Handlers
+        initHandlers();
+
         // ViewModel
         viewModel = ViewModelProviders.of(this).get(TweetViewModel.class);
         viewModel.init();
 
         // Observers
         initObservers();
+    }
+
+    private void initHandlers() {
+        searchHandler = new Handler();
     }
 
     private void initObservers() {
@@ -92,6 +105,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onMenuItemActionCollapse(MenuItem item) {
         Log.d("search", "done searching");
+        // TODO: clear tracking current MP in TweetViewModel/TextView
+        if (viewModel != null) {
+            viewModel.setCurrentMP(null);
+        }
         return true;
     }
 
@@ -101,9 +118,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onQueryTextChange(String newText) {
+    public boolean onQueryTextChange(final String newText) {
         if (viewModel != null) {
-            // TODO: add search param to DB query
+            // TODO: Return livedata, make TextView observe livedata and change "MP X did not.." or "No MP found".
+            // cf. onTweetsChanged
+            searchHandler.removeCallbacksAndMessages(null);
+            searchHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d("search", "runnable fires with " + newText);
+                    viewModel.setCurrentMP(newText);
+                }
+            }, 1000);
         }
         return true;
     }
@@ -125,6 +151,8 @@ public class MainActivity extends AppCompatActivity
 
     private void onTweetsChanged(List<Tweet> tweets) {
         tweetAdapter.refreshAll(tweets);
+        // TODO: set visibility of recyclerview/textview based on count of tweets
+        // tweetRecyclerView.setVisibility(View.INVISIBLE);
     }
 
     @Override

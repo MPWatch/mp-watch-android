@@ -76,13 +76,16 @@ public class TweetsRepository {
         });
     }
 
-    public LiveData<List<Tweet>> getTweets(Topic topic) {
+    public LiveData<List<Tweet>> getTweets(Topic topic, String mp) {
         // topic can be null (on initial call)
         int c = tweetDao.count(topic.getName());
         if (c == 0) {
             fetchTweets(topic);
         }
-        return tweetDao.load(topic.getName());
+        if (mp.equals("")) {
+            return tweetDao.load(topic.getName(), mp);
+        }
+        return tweetDao.loadPerTopic(topic.getName());
     }
 
     private void fetchTweets(final Topic topic) {
