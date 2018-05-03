@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +33,7 @@ public class MainActivity extends
     private TopicAdapter topicAdapter;
     private RecyclerView tweetRecyclerView;
     private TweetAdapter tweetAdapter;
+    private TextView emptyTweetRecyclerViewTextView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,9 +73,7 @@ public class MainActivity extends
         viewModel.getCurrentMP().observe(this, new Observer<MP>() {
             @Override
             public void onChanged(@Nullable MP mp) {
-                if (mp != null) {
-                    onCurrentMPChanged(mp);
-                }
+                onCurrentMPChanged(mp);
             }
         });
     }
@@ -93,6 +93,9 @@ public class MainActivity extends
         tweetRecyclerView.setLayoutManager(verticalLayoutManager);
         tweetAdapter = new TweetAdapter(this, Collections.<Tweet>emptyList());
         tweetRecyclerView.setAdapter(tweetAdapter);
+
+        // TextView
+        emptyTweetRecyclerViewTextView = findViewById(R.id.emptyRvText);
     }
 
 
@@ -113,9 +116,8 @@ public class MainActivity extends
     @Override
     public boolean onMenuItemActionCollapse(MenuItem item) {
         Log.d("search", "done searching");
-        // TODO: clear tracking current MP in TweetViewModel/TextView
         if (viewModel != null) {
-            viewModel.setCurrentSearchQueryMP(null);
+            viewModel.setCurrentSearchQueryMP("");
         }
         return true;
     }
@@ -128,7 +130,6 @@ public class MainActivity extends
     @Override
     public boolean onQueryTextChange(final String newText) {
         if (viewModel != null) {
-            // TODO: Return livedata, make TextView observe livedata and change "MP X did not.." or "No MP found".
             // cf. onTweetsChanged
             searchHandler.removeCallbacksAndMessages(null);
             searchHandler.postDelayed(new Runnable() {
@@ -148,7 +149,22 @@ public class MainActivity extends
     }
 
     private void onCurrentMPChanged(MP currentMP) {
-        Log.d("found an MP!", "it is: " + currentMP.getTwitterHandle());
+        Log.d("currentmpchanged", "fireeed");
+        if (emptyTweetRecyclerViewTextView != null) {
+            if (currentMP != null) {
+                emptyTweetRecyclerViewTextView.setText(currentMP.getTwitterHandle());
+            } else {
+                String searchQuery = viewModel.getCurrentSearchQueryMP();
+                String displayQuery = "Loading...";
+                if (searchQuery != null && !searchQuery.equals("")) {
+                    displayQuery = "Could not find tweets by '"
+                            + searchQuery
+                            + "' about '"
+                            + viewModel.getCurrentTopic().getName() + "'";
+                }
+                emptyTweetRecyclerViewTextView.setText(displayQuery);
+            }
+        }
     }
 
     private void onTopicsChanged(List<Topic> topics) {
@@ -162,9 +178,16 @@ public class MainActivity extends
     }
 
     private void onTweetsChanged(List<Tweet> tweets) {
+        // reset visibility on TextView/ RV
+        tweetRecyclerView.setVisibility(View.VISIBLE);
+        emptyTweetRecyclerViewTextView.setVisibility(View.INVISIBLE);
+        // update Adapter
         tweetAdapter.refreshAll(tweets);
-        // TODO: set visibility of recyclerview/textview based on count of tweets
-        // tweetRecyclerView.setVisibility(View.INVISIBLE);
+        // change visibility
+        if (tweets.size() < 1) {
+            tweetRecyclerView.setVisibility(View.INVISIBLE);
+            emptyTweetRecyclerViewTextView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

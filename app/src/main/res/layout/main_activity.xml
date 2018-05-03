@@ -24,4 +24,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rvTopics" />
 
+    <TextView
+        android:id="@+id/emptyRvText"
+        android:text="Loading..."
+        android:layout_width="match_parent"
+        android:textAlignment="center"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="@id/rvTweets"
+        app:layout_constraintTop_toTopOf="@id/rvTweets"/>
+
 </android.support.constraint.ConstraintLayout>

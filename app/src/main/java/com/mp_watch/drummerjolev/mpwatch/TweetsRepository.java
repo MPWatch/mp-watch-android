@@ -71,7 +71,7 @@ public class TweetsRepository {
         }
         // TODO: assuming all names are unique.
         // In reality, multiple MPs could have the same name.
-        return mpDao.loadPerName(name);
+        return mpDao.loadPerName(StringUtils.capitalizeString(name));
     }
 
     private void fetchMPs() {

@@ -67,8 +67,12 @@ public class TweetViewModel extends ViewModel {
         return currentMP;
     }
 
-    public MutableLiveData<Topic> getCurrentTopic() {
-        return currentTopic;
+    public String getCurrentSearchQueryMP() {
+        return currentSearchQueryMP.getValue();
+    }
+
+    public Topic getCurrentTopic() {
+        return currentTopic.getValue();
     }
 
     public LiveData<List<Tweet>> getTweets() {
