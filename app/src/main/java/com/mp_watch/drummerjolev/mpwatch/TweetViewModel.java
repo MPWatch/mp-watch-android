@@ -10,13 +10,11 @@ import android.util.Log;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 public class TweetViewModel extends ViewModel {
     private TweetsRepository tweetsRepository;
     private LiveData<List<Topic>> topics;
     private MutableLiveData<Topic> currentTopic;
-    private MutableLiveData<String> currentMP;
+    private MutableLiveData<String> currentSearchQueryMP;
     private QueryLiveData query;
     private LiveData<List<Tweet>> tweets;
 
@@ -30,8 +28,8 @@ public class TweetViewModel extends ViewModel {
         this.topics = tweetsRepository.getTopics();
         // TODO: add call to get all MPs
         this.currentTopic = new MutableLiveData<>();
-        this.currentMP = new MutableLiveData<>();
-        this.query = new QueryLiveData(currentTopic, currentMP);
+        this.currentSearchQueryMP = new MutableLiveData<>();
+        this.query = new QueryLiveData(currentTopic, currentSearchQueryMP);
         this.tweets = Transformations.switchMap(query, new Function<Pair<Topic, String>, LiveData<List<Tweet>>>() {
             @Override
             public LiveData<List<Tweet>> apply(Pair<Topic, String> input) {
@@ -52,9 +50,9 @@ public class TweetViewModel extends ViewModel {
         this.currentTopic.setValue(currentTopic);
     }
 
-    public void setCurrentMP(String mp) {
+    public void setCurrentSearchQueryMP(String mp) {
         // set to null when done
-        this.currentMP.setValue(mp);
+        this.currentSearchQueryMP.setValue(mp);
     }
 
     public MutableLiveData<Topic> getCurrentTopic() {

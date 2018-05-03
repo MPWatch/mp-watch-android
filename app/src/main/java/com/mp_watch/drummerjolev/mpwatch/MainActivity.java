@@ -107,7 +107,7 @@ public class MainActivity extends
         Log.d("search", "done searching");
         // TODO: clear tracking current MP in TweetViewModel/TextView
         if (viewModel != null) {
-            viewModel.setCurrentMP(null);
+            viewModel.setCurrentSearchQueryMP(null);
         }
         return true;
     }
@@ -127,7 +127,7 @@ public class MainActivity extends
                 @Override
                 public void run() {
                     Log.d("search", "runnable fires with " + newText);
-                    viewModel.setCurrentMP(newText);
+                    viewModel.setCurrentSearchQueryMP(newText);
                 }
             }, 1000);
         }

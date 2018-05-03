@@ -7,12 +7,13 @@ import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 
 // Singleton implements database
-@Database(entities = {Topic.class, Tweet.class}, version = 4)
+@Database(entities = {Topic.class, Tweet.class, MP.class}, version = 6)
 public abstract class MPWatchDatabase extends RoomDatabase {
     private static MPWatchDatabase db;
 
     public abstract TopicDao topicDao();
     public abstract TweetDao tweetDao();
+    public abstract MPDao mpDao();
 
     public static MPWatchDatabase getInstance(Context context) {
         if (db == null) { db = buildInstance(context); }

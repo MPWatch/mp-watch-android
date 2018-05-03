@@ -49,6 +49,9 @@ public class Tweet {
     @SerializedName("twitter_handle")
     @Expose
     private String twitterHandle;
+    @SerializedName("name")
+    @Expose
+    private String name;
     @SerializedName("url")
     @Expose
     private String url;
@@ -93,6 +96,10 @@ public class Tweet {
         return twitterHandle;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -135,6 +142,10 @@ public class Tweet {
 
     public void setTwitterHandle(String twitterHandle) {
         this.twitterHandle = twitterHandle;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setUrl(String url) {

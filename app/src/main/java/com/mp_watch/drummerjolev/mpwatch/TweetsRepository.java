@@ -24,6 +24,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class TweetsRepository {
     private final Webservice webservice;
     private final TopicDao topicDao;
+    private final MPDao mpDao;
     private final TweetDao tweetDao;
     private final Executor executor;
 
@@ -52,9 +53,29 @@ public class TweetsRepository {
         // DAOs
         this.topicDao = MPWatchDatabase.getInstance(MPWatchApplication.getContext()).topicDao();
         this.tweetDao = MPWatchDatabase.getInstance(MPWatchApplication.getContext()).tweetDao();
+        this.mpDao = MPWatchDatabase.getInstance(MPWatchApplication.getContext()).mpDao();
 
         // Executor
         this.executor = Executors.newSingleThreadExecutor();
+    }
+
+    public LiveData<List<MP>> getMPs() {
+        fetchMPs();
+        return mpDao.loadAll();
+    }
+
+    private void fetchMPs() {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Response<ArrayList<MP>> response = webservice.getMPs().execute();
+                    mpDao.saveAll(response.body());
+                } catch (Exception e) {
+                    Log.d("mps repo", "mp fetch failed " + e.getLocalizedMessage());
+                }
+            }
+        });
     }
 
     public LiveData<List<Topic>> getTopics() {
@@ -76,14 +97,14 @@ public class TweetsRepository {
         });
     }
 
-    public LiveData<List<Tweet>> getTweets(Topic topic, String mp) {
+    public LiveData<List<Tweet>> getTweets(Topic topic, String mpQuery) {
         // topic can be null (on initial call)
         int c = tweetDao.count(topic.getName());
         if (c == 0) {
             fetchTweets(topic);
         }
-        if (mp.equals("")) {
-            return tweetDao.load(topic.getName(), mp);
+        if (mpQuery != null && !mpQuery.equals("")) {
+            return tweetDao.load(topic.getName(), mpQuery + "%");
         }
         return tweetDao.loadPerTopic(topic.getName());
     }

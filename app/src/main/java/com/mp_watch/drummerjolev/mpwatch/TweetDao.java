@@ -14,8 +14,8 @@ public interface TweetDao {
     void saveAll(List<Tweet> tweets);
     @Query("SELECT * FROM tweet WHERE entity = :topic")
     LiveData<List<Tweet>> loadPerTopic(String topic);
-    @Query("SELECT * FROM tweet WHERE entity = :topic AND twitterHandle = :mp")
-    LiveData<List<Tweet>> load(String topic, String mp);
+    @Query("SELECT * FROM tweet WHERE entity = :topic AND name LIKE :mpName")
+    LiveData<List<Tweet>> load(String topic, String mpName);
     // TODO: add query taking topic, mp as parameter
     @Query("SELECT * FROM tweet")
     LiveData<List<Tweet>> loadAll();

@@ -10,6 +10,9 @@ public interface Webservice {
     @GET("/topics")
     Call<ArrayList<Topic>> getTopics();
 
+    @GET("/mps")
+    Call<ArrayList<MP>> getMPs();
+
     @GET("/tweets")
     Call<ArrayList<Tweet>> getTweets(@Query("topic") String topicName);
 }
