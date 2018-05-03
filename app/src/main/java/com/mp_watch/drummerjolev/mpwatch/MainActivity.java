@@ -68,6 +68,14 @@ public class MainActivity extends
                 onTweetsChanged(tweets);
             }
         });
+        viewModel.getCurrentMP().observe(this, new Observer<MP>() {
+            @Override
+            public void onChanged(@Nullable MP mp) {
+                if (mp != null) {
+                    onCurrentMPChanged(mp);
+                }
+            }
+        });
     }
 
     private void initViews() {
@@ -137,6 +145,10 @@ public class MainActivity extends
     @Override
     public boolean onQueryTextSubmit(String query) {
         return false;
+    }
+
+    private void onCurrentMPChanged(MP currentMP) {
+        Log.d("found an MP!", "it is: " + currentMP.getTwitterHandle());
     }
 
     private void onTopicsChanged(List<Topic> topics) {

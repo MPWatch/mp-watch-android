@@ -15,6 +15,7 @@ public class TweetViewModel extends ViewModel {
     private LiveData<List<Topic>> topics;
     private MutableLiveData<Topic> currentTopic;
     private MutableLiveData<String> currentSearchQueryMP;
+    private LiveData<MP> currentMP;
     private QueryLiveData query;
     private LiveData<List<Tweet>> tweets;
 
@@ -40,6 +41,13 @@ public class TweetViewModel extends ViewModel {
                 return tweetsRepository.getTweets(topic, mp);
             }
         });
+        this.currentMP = Transformations.switchMap(currentSearchQueryMP, new Function<String, LiveData<MP>>() {
+            @Override
+            public LiveData<MP> apply(String input) {
+                Log.d("transformation", "looking for an mp matching name " + input);
+                return tweetsRepository.getMP(input);
+            }
+        });
     }
 
     public LiveData<List<Topic>> getTopics() {
@@ -53,6 +61,10 @@ public class TweetViewModel extends ViewModel {
     public void setCurrentSearchQueryMP(String mp) {
         // set to null when done
         this.currentSearchQueryMP.setValue(mp);
+    }
+
+    public LiveData<MP> getCurrentMP() {
+        return currentMP;
     }
 
     public MutableLiveData<Topic> getCurrentTopic() {

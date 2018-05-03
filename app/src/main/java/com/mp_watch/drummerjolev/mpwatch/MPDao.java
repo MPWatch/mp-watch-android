@@ -12,8 +12,10 @@ import java.util.List;
 public interface MPDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void saveAll(List<MP> mps);
-    @Query("SELECT * FROM mp WHERE name = :name")
-    LiveData<List<MP>> loadPerName(String name);
+    @Query("SELECT * FROM mp WHERE name = :name LIMIT 1")
+    LiveData<MP> loadPerName(String name);
     @Query("SELECT * FROM mp")
     LiveData<List<MP>> loadAll();
+    @Query("SELECT COUNT(*) FROM mp")
+    int count();
 }

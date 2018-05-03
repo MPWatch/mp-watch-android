@@ -64,6 +64,16 @@ public class TweetsRepository {
         return mpDao.loadAll();
     }
 
+    public LiveData<MP> getMP(String name) {
+        int c = mpDao.count();
+        if (c == 0) {
+            fetchMPs();
+        }
+        // TODO: assuming all names are unique.
+        // In reality, multiple MPs could have the same name.
+        return mpDao.loadPerName(name);
+    }
+
     private void fetchMPs() {
         executor.execute(new Runnable() {
             @Override
