@@ -2,6 +2,8 @@ package com.mp_watch.drummerjolev.mpwatch;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -15,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +36,7 @@ public class MainActivity extends
     private TopicAdapter topicAdapter;
     private RecyclerView tweetRecyclerView;
     private TweetAdapter tweetAdapter;
+
     private TextView emptyTweetRecyclerViewTextView;
 
     @Override
@@ -94,7 +98,7 @@ public class MainActivity extends
         tweetAdapter = new TweetAdapter(this, Collections.<Tweet>emptyList());
         tweetRecyclerView.setAdapter(tweetAdapter);
 
-        // TextView
+        // TextViews
         emptyTweetRecyclerViewTextView = findViewById(R.id.emptyRvText);
     }
 
@@ -148,21 +152,34 @@ public class MainActivity extends
         return false;
     }
 
-    private void onCurrentMPChanged(MP currentMP) {
-        Log.d("currentmpchanged", "fireeed");
+    private void onCurrentMPChanged(final MP currentMP) {
         if (emptyTweetRecyclerViewTextView != null) {
+            // update TextView
             if (currentMP != null) {
-                emptyTweetRecyclerViewTextView.setText(currentMP.getTwitterHandle());
+                String mpName = currentMP.getName();
+                final String mpTwitterHandle = currentMP.getTwitterHandle();
+
+                String displayText = String.format(getResources().getString(R.string.no_mp_response_text), mpName, mpTwitterHandle);
+                emptyTweetRecyclerViewTextView.setText(displayText);
+
+                emptyTweetRecyclerViewTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String topicName = viewModel.getCurrentTopic().getName();
+                        String tweetText = String.format(getResources().getString(R.string.tweet_text), mpTwitterHandle, topicName);
+                        String encodedTweetText = Uri.encode(tweetText);
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/intent/tweet?text=" + encodedTweetText));
+                        startActivity(browserIntent);
+                    }
+                });
             } else {
                 String searchQuery = viewModel.getCurrentSearchQueryMP();
-                String displayQuery = "Loading...";
+                String displayQuery = getString(R.string.loading_text);
                 if (searchQuery != null && !searchQuery.equals("")) {
-                    displayQuery = "Could not find tweets by '"
-                            + searchQuery
-                            + "' about '"
-                            + viewModel.getCurrentTopic().getName() + "'";
+                    displayQuery = String.format(getResources().getString(R.string.empty_query_text), searchQuery);
                 }
                 emptyTweetRecyclerViewTextView.setText(displayQuery);
+                emptyTweetRecyclerViewTextView.setOnClickListener(null);
             }
         }
     }
@@ -178,13 +195,15 @@ public class MainActivity extends
     }
 
     private void onTweetsChanged(List<Tweet> tweets) {
-        // reset visibility on TextView/ RV
-        tweetRecyclerView.setVisibility(View.VISIBLE);
+        // reset visibility on RV, aux views
         emptyTweetRecyclerViewTextView.setVisibility(View.INVISIBLE);
+        tweetRecyclerView.setVisibility(View.VISIBLE);
+
         // update Adapter
         tweetAdapter.refreshAll(tweets);
-        // change visibility
-        if (tweets.size() < 1) {
+
+        // change visibility on RV, aux views
+        if (tweetAdapter.getItemCount() < 1) {
             tweetRecyclerView.setVisibility(View.INVISIBLE);
             emptyTweetRecyclerViewTextView.setVisibility(View.VISIBLE);
         }
