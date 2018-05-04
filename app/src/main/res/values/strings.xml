@@ -2,7 +2,10 @@
     <string name="app_name">MP Watch</string>
     <string name="main_activity_description">This Week\'s Tweets</string>
     <string name="loading_text">Loading…</string>
+
+    <string name="tweet_author">by %1$s (%2$s)</string>
+
     <string name="empty_query_text">Could not find tweets by %1$s. Please try again.</string>
-    <string name="no_mp_response_text">Raise awareness about this issue by tweeting to this MP. Note that our algorithm does not return exhaustive results. Tap here to tweet to %1$s (%2$s)</string>
+    <string name="no_mp_response_text">Raise awareness about this issue by tweeting to this MP. Note that our algorithm does not return exhaustive results. Tap here to tweet to <b>%1$s (%2$s)</b></string>
     <string name="tweet_text">Dear %1$s, why didn\'t you react to %2$s this week? I\'d like to hear your thoughts.</string>
 </resources>

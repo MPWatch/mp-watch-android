@@ -25,6 +25,7 @@ import java.util.List;
 public class MainActivity extends
         AppCompatActivity implements
         TopicAdapter.TopicClickListener,
+        TweetAdapter.TweetClickListener,
         SearchView.OnQueryTextListener,
         MenuItem.OnActionExpandListener
 {
@@ -96,6 +97,7 @@ public class MainActivity extends
         LinearLayoutManager verticalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         tweetRecyclerView.setLayoutManager(verticalLayoutManager);
         tweetAdapter = new TweetAdapter(this, Collections.<Tweet>emptyList());
+        tweetAdapter.setTweetClickListener(this);
         tweetRecyclerView.setAdapter(tweetAdapter);
 
         // TextViews
@@ -212,5 +214,11 @@ public class MainActivity extends
     @Override
     public void onTopicClick(View view, Topic topic, int position) {
         viewModel.setCurrentTopic(topic);
+    }
+
+    @Override
+    public void onTweetClick(View view, Tweet tweet, int position) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/" + tweet.getTwitterHandle() + "/status/" + tweet.getId()));
+        startActivity(browserIntent);
     }
 }
