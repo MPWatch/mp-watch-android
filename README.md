@@ -4,7 +4,7 @@ MP Watch keeps an eye on all 582 British Members of Parliament Twitter accounts.
 
 ## Walkthrough
 
-<img src='http://i.imgur.com/dx3PvKm.gif' title='Walkthrough' width='' alt='MP Watch GIF Walkthrough' />
+<img src='http://i.imgur.com/AmQlrBk.gif' title='Walkthrough' width='' alt='MP Watch GIF Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
