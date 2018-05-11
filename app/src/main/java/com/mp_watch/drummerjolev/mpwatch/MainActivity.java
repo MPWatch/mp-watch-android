@@ -115,6 +115,7 @@ public class MainActivity extends
         menuItem.setOnActionExpandListener(this);
         // search query listener
         final SearchView searchView = (SearchView) menuItem.getActionView();
+        searchView.setQueryHint("Type MP name...");
         searchView.setOnQueryTextListener(this);
         return super.onCreateOptionsMenu(menu);
     }
