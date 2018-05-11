@@ -201,5 +201,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Added for git reports
+gitlogparse.py
+visualize_history.sh
 
 # End of https://www.gitignore.io/api/macos,linux,android,androidstudio
